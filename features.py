@@ -144,6 +144,7 @@ def get_features_category_tuples(category_text_dict, feature_set):
             ###     YOUR CODE GOES HERE
             raise NotImplemented
 
+            print( feature_vectors )
             features_category_tuples.append((feature_vectors, category))
             texts.append(text)
 
