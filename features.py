@@ -1,7 +1,8 @@
 
 import nltk
 import re
-import word_category_counter
+import json
+#import word_category_counter
 import data_helper
 
 
@@ -37,12 +38,12 @@ def get_words_tags(text, should_normalize=True):
     This function performs part of speech tagging and extracts the words
     from the review text.
 
-    You need to :
+    need to :
         - tokenize the text into sentences
         - word tokenize each sentence
         - part of speech tag the words of each sentence
 
-    Return a list containing all the words of the review and another list
+    Returns a list containing all the words of the review and another list
     containing all the part-of-speech tags for those words.
 
     :param text:
@@ -165,18 +166,23 @@ def write_features_category(features_category_tuples, outfile_name):
 
 
 def features_stub():
+    # open restaurant-training.data
+    # calls data_helper.py to put file in pos or neg category list
     datafile = "restaurant-training.data"
     raw_data = data_helper.read_file(datafile)
     positive_texts, negative_texts = data_helper.get_reviews(raw_data)
 
+    # category_texts creates
+    #   { posive, [... all positive reviews ] , negative, [...all neg ...] }
+    #
     category_texts = {"positive": positive_texts, "negative": negative_texts}
     feature_set = "word_features"
 
     features_category_tuples, texts = get_features_category_tuples(category_texts, feature_set)
 
-    raise NotImplemented
-    filename = "???"
-    write_features_category(features_category_tuples, filename)
+    #raise NotImplemented
+    #filename = "???"
+    #write_features_category(features_category_tuples, filename)
 
 
 
