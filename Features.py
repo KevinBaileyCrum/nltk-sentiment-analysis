@@ -127,11 +127,15 @@ def get_features_category_tuples(category_text_dict, feature_set):
 
             ###     YOUR CODE GOES HERE
             word_ngrams = get_ngram_features( words )
-            pos_ngrams  = get_ngram_features( tags )
-            print( pos_ngrams )
+            pos_ngrams  = get_ngram_features( tags ) do this in pos for writing
+            feature_vectors.update( word_ngrams )
+
+            feature_vectors.update( pos_ngrams )
+
             features_category_tuples.append((feature_vectors, category))
             texts.append(text)
 
+    print( features_category_tuples )
     return features_category_tuples, texts
 
 
@@ -165,8 +169,8 @@ def features_stub():
     features_category_tuples, texts = get_features_category_tuples(category_texts, feature_set)
 
     #raise NotImplemented
-    #filename = "???"
-    #write_features_category(features_category_tuples, filename)
+    filename = "???"
+    write_features_category(features_category_tuples, filename)
 
 
 
