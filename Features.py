@@ -1,37 +1,10 @@
-# This is Kevin's refactoring of features.py
+
 import nltk
 import re
 import json
 #import word_category_counter
 import data_helper
-
-
-
-def normalize(token, should_normalize=True):
-    """
-    This function performs text normalization.
-
-    If should_normalize is False then we return the original token unchanged.
-    Otherwise, we return a normalized version of the token, or None.
-
-    For some tokens (like stopwords) we might not want to keep the token. In
-    this case we return None.
-
-    :param token: str: the word to normalize
-    :param should_normalize: bool
-    :return: None or str
-    """
-    if not should_normalize:
-        normalized_token = token
-
-    else:
-
-        ###     YOUR CODE GOES HERE
-        raise NotImplemented
-
-    return normalized_token
-
-
+import argparse
 
 def get_words_tags(text, should_normalize=True):
     """
@@ -55,8 +28,15 @@ def get_words_tags(text, should_normalize=True):
 
     # tokenization for each sentence
 
-    ###     YOUR CODE GOES HERE
-    raise NotImplemented
+    sent = nltk.sent_tokenize( text )
+    for sentences in sent:
+        sentences = sentences.lower()
+        words += nltk.word_tokenize( sentences )
+
+    tags=[ t[1] for t in nltk.pos_tag(words) ]
+
+    #print( tags )
+    #print( words )
 
     return words, tags
 
@@ -68,12 +48,15 @@ def get_ngram_features(tokens):
 
     :param tokens:
     :return: feature_vectors: a dictionary values for each ngram feature
+    TODO change this
     """
     feature_vectors = {}
-
-
-    ###     YOUR CODE GOES HERE
-    raise NotImplemented
+    uni_fdist = nltk.FreqDist(tokens)
+    bi_fdist = nltk.FreqDist(nltk.bigrams(tokens))
+    for token, freq in uni_fdist.items():
+        feature_vectors["UNI_{0}".format(token)] = float(freq)/uni_fdist.B()
+    for (b1, b2), freq in bi_fdist.items():
+        feature_vectors["BIGRAM_{0}_{1}".format(b1, b2)] = float(freq)/bi_fdist.N()
 
     return feature_vectors
 
@@ -134,7 +117,7 @@ def get_features_category_tuples(category_text_dict, feature_set):
     features_category_tuples = []
     texts = []
 
-    assert feature_set in FEATURE_SETS, "unrecognized feature set:{}, Accepted values:{}".format(feature_set, FEATURE_SETS)
+    assert feature_set in FEATURE_SETS,"unrecognized feature set:{}, Accepted values:{}".format(feature_set, FEATURE_SETS)
 
     for category in category_text_dict:
         for text in category_text_dict[category]:
@@ -143,9 +126,9 @@ def get_features_category_tuples(category_text_dict, feature_set):
             feature_vectors = {}
 
             ###     YOUR CODE GOES HERE
-            raise NotImplemented
-
-            print( feature_vectors )
+            word_ngrams = get_ngram_features( words )
+            pos_ngrams  = get_ngram_features( tags )
+            print( pos_ngrams )
             features_category_tuples.append((feature_vectors, category))
             texts.append(text)
 
@@ -168,6 +151,7 @@ def write_features_category(features_category_tuples, outfile_name):
 def features_stub():
     # open restaurant-training.data
     # calls data_helper.py to put file in pos or neg category list
+    # here is where I would call other files as well
     datafile = "restaurant-training.data"
     raw_data = data_helper.read_file(datafile)
     positive_texts, negative_texts = data_helper.get_reviews(raw_data)
@@ -187,5 +171,12 @@ def features_stub():
 
 
 if __name__ == "__main__":
+    #parser = argparse.ArgumentParser(
+    #    description='Generate all feature vectors from given files')
+    #parser.add_argument( 'restaurant-training.data' )
+    #parser.add_argument( 'restaurant-development.data' )
+    #parser.add_argument( 'restaurant-testing.data' )
+
+
     features_stub()
 
