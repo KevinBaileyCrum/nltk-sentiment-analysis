@@ -27,8 +27,7 @@ def normalize(token, should_normalize=True):
     else:
 
         ###     YOUR CODE GOES HERE
-        raise NotImplemented
-
+        print('hello')
     return normalized_token
 
 
@@ -55,8 +54,17 @@ def get_words_tags(text, should_normalize=True):
 
     # tokenization for each sentence
 
-    ###     YOUR CODE GOES HERE
-    raise NotImplemented
+    sent = nltk.sent_tokenize( text )
+    for sentences in sent:
+        sentences = sentences.lower()
+        words += nltk.word_tokenize( sentences )
+
+    tags=[ t[1] for t in nltk.pos_tag(words) ]
+
+    print( tags )
+    print( words )
+    print()
+    print('######################################')
 
     return words, tags
 
@@ -143,7 +151,6 @@ def get_features_category_tuples(category_text_dict, feature_set):
             feature_vectors = {}
 
             ###     YOUR CODE GOES HERE
-            raise NotImplemented
 
             print( feature_vectors )
             features_category_tuples.append((feature_vectors, category))
