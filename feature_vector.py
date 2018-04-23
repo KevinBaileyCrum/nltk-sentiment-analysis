@@ -2,18 +2,20 @@
 import nltk
 import re
 import json
-#import word_category_counter
+import word_category_counter
 import data_helper
 import argparse
 
-def concatStr(ngram):
+def concat_str(ngram):
+    # helper function for fwrite_feature_vectors
+
     out=""
     for key, value in ngram.items():
         out+= "{}:{} ".format( key, value )
     return out
 
 
-def fwrite_feature_vectors( posi_word_ngram, neg_word_ngram, posi_pos_ngram, neg_pos_ngram, liwc ):
+def fwrite_feature_vectors( posi_word_ngram, neg_word_ngram, posi_pos_ngram, neg_pos_ngram, posi_liwc_feat, neg_liwc_feat ):
     '''
     this is some nasty code and I am not the most proud of it
     there does exist a more elegant way to do this but
@@ -22,39 +24,53 @@ def fwrite_feature_vectors( posi_word_ngram, neg_word_ngram, posi_pos_ngram, neg
     '''
     dataset = 'help' # this shall be the changed variable
 
-    # initialize and open files,
-    # This overwrites old files and initializes the category
-    '''
-    with open( 'word_features-'+dataset+'-features.txt', "w", encoding="utf-8") as fout:
-        fout.write('positive ')
+    # Formats output to be written as string formats
+    # format word tokens
+    pos_word_feat=concat_str(posi_word_ngram)
+    neg_word_feat=concat_str(neg_word_ngram)
+    # format pos_tokens
+    posi_pos_feat = concat_str( posi_pos_ngram )
+    neg_pos_feat  = concat_str( neg_pos_ngram )
+    # format LIWC tokens
+    posi_liwc_feat = concat_str( posi_liwc_feat )
+    neg_liwc_feat  = concat_str( neg_liwc_feat )
 
-    # write positive word_features
-    for key, value in posi_word_ngram.items():
-        with open( 'word_features-'+dataset+'-features.txt', "a", encoding="utf-8") as fout:
-            fout.write( "{}:{} ".format( key, value ) )
-
-    # append negative word_features
-    with open( 'word_features-'+dataset+'-features', "a", encoding="utf-8") as fout:
-        fout.write('\n') # newline to seperate positive and negative
-        fout.write('negative ')
-        for key, value in neg_word_ngram.items():
-            fout.write( "{}:{} ".format( key, value ) )
-
-    '''
-
-    pos_word_feat=concatStr(posi_word_ngram)
-    neg_word_feat=concatStr(neg_word_ngram)
-
-    posi_pos_feat = concatStr( posi_pos_ngram )
-    neg_pos_feat  = concatStr( neg_pos_ngram )
-
+    # write to files
     with open( 'word_features-'+dataset+'-features.txt', "w", encoding="utf-8" ) as fout:
         fout.write( "positive %s\nnegative %s"%( pos_word_feat, neg_word_feat ) )
 
-    with open( 'word_pos_features-'+dataset+'features.txt',"w", encoding="utf-8" ) as fout:
+    with open( 'word_pos_features-'+dataset+'-features.txt',"w", encoding="utf-8" ) as fout:
         fout.write( "positive %s %s\n negative %s %s"%( pos_word_feat, posi_pos_feat, neg_word_feat, neg_pos_feat ) )
 
+    with open( 'word_pos_liwc_features-'+dataset+'-features.txt',"w", encoding="utf-8" ) as fout:
+        fout.write( "positive %s %s %s\n negative %s %s %s"%( pos_word_feat, posi_pos_feat, posi_liwc_feat,neg_word_feat, neg_pos_feat, neg_liwc_feat ) )
+    # TODO WWRITE LIWC TO FILE
     return
+
+
+def get_liwc_features(words):
+    """
+    Adds a simple LIWC derived feature
+    :param words:
+    :return:
+    """
+    feature_vectors = {}
+    text = " ".join(words)
+    liwc_scores = word_category_counter.score_text(text)
+
+    # All possible keys to the scores start on line 269
+    # of the word_category_counter.py script
+    negative_score = liwc_scores["Negative Emotion"]
+    positive_score = liwc_scores["Positive Emotion"]
+    feature_vectors["Negative Emotion"] = negative_score
+    feature_vectors["Positive Emotion"] = positive_score
+
+    if positive_score > negative_score:
+        feature_vectors["liwc:positive"] = 1
+    else:
+        feature_vectors["liwc:negative"] = 1
+
+    return feature_vectors
 
 
 def get_ngram_features(tokens):
@@ -64,8 +80,8 @@ def get_ngram_features(tokens):
 
     :param tokens:
     :return: feature_vectors: a dictionary values for each ngram feature
-    TODO change this
     '''
+    # TODO change this
     feature_vectors = {}
     uni_fdist = nltk.FreqDist(tokens)
     bi_fdist = nltk.FreqDist(nltk.bigrams(tokens))
@@ -153,8 +169,11 @@ def features_stub():
     for tokens in negative_toks:
         neg_pos_ngram.update( get_ngram_features( negative_pos_toks ) )
 
-    liwc = 'six'
-    fwrite_feature_vectors( posi_word_ngram, neg_word_ngram, posi_pos_ngram, neg_pos_ngram, liwc )
+    # get LIWC features
+    posi_liwc_feat = get_liwc_features( positive_toks )
+    neg_liwc_feat  = get_liwc_features( negative_toks )
+    print( neg_liwc_feat )
+    fwrite_feature_vectors( posi_word_ngram, neg_word_ngram, posi_pos_ngram, neg_pos_ngram, posi_liwc_feat, neg_liwc_feat )
 
 if __name__ == "__main__":
     features_stub()
