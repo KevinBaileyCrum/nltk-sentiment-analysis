@@ -102,10 +102,9 @@ def get_ngram_features(tokens):
     uni_fdist = nltk.FreqDist(tokens)
     bi_fdist = nltk.FreqDist(nltk.bigrams(tokens))
     for token, freq in uni_fdist.items():
-        feature_vectors["UNI_{0}".format(token)] = float(freq)/uni_fdist.B()
+        feature_vectors["UNI_{0}".format(token)] = float(freq)/uni_fdist.N()
     for (b1, b2), freq in bi_fdist.items():
         feature_vectors["BIGRAM_{0}_{1}".format(b1, b2)] = float(freq)/bi_fdist.N()
-
     return feature_vectors
 
 def get_pos( text ):
@@ -181,21 +180,22 @@ def features_stub( filename ):
     neg_pos_ngram = {}
     print( 'begin word ngram' )
     for tokens in positive_toks:
-        posi_word_ngram.update( get_ngram_features( positive_toks ) )
+        posi_word_ngram.update( get_ngram_features( tokens ) )
     print( 'all positive word ngram completed')
+    print( 'begin negative word ngram' )
     for tokens in negative_toks:
-        neg_word_ngram.update( get_ngram_features( negative_toks ) )
+        neg_word_ngram.update( get_ngram_features( tokens ) )
     print( 'all negative word ngram completed')
     print( 'end word ngram' )
 
     print( 'begin pos ngram' )
     for tokens in positive_toks:
-        posi_pos_ngram.update( get_ngram_features( positive_pos_toks ) )
+        posi_pos_ngram.update( get_ngram_features( tokens ) )
 
     print( 'all pos pos ngram completed')
     print( 'begin negative ngram' )
     for tokens in negative_toks:
-        neg_pos_ngram.update( get_ngram_features( negative_pos_toks ) )
+        neg_pos_ngram.update( get_ngram_features( tokens ) )
     print( 'all negative pos ngram completed')
     print( 'end pos ngram')
     print('begin liwc')
