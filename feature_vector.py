@@ -22,7 +22,6 @@ def fwrite_feature_vectors( filename, posi_word_ngram, neg_word_ngram, posi_pos_
     make sure the output is correct for the parsing of dataset to filename
     '''
     dataset = filename[11:-5]
-    print(dataset)
 
     # Formats output to be written as string formats
     # format word tokens
@@ -63,22 +62,18 @@ def get_liwc_features(words):
     negative_score = 0
     positive_score = 0
 
-    negative_score += liwc_scores["Negative Emotion"]
+    # some values were too high so scalars are present
+    negative_score += liwc_scores["Negative Emotion"] * 2
     negative_score += liwc_scores["Anger"]
     negative_score += liwc_scores["Anxiety"]
     negative_score += liwc_scores["Sadness"]
     negative_score += liwc_scores["Metaphysical issues"]
     negative_score += liwc_scores["Death"]
 
-    positive_score += liwc_scores["Positive Emotion"]
+    positive_score += liwc_scores["Positive Emotion"] / 6
     positive_score += liwc_scores["Optimism and energy"]
     positive_score += liwc_scores["Achievement"]
-    #positive_score += liwc_scores[]
-    #positive_score += liwc_scores[]
-    #positive_score += liwc_scores[]
-
-    feature_vectors["Negative Emotion"] = negative_score
-    feature_vectors["Positive Emotion"] = positive_score
+    positive_score += liwc_scores["Future Tense"]
 
 
     if positive_score > negative_score:
@@ -202,8 +197,6 @@ def features_stub( filename ):
     # get LIWC features
     posi_liwc_feat = get_liwc_features( positive_toks )
     neg_liwc_feat  = get_liwc_features( negative_toks )
-    print( posi_liwc_feat )
-    print( neg_liwc_feat )
     print('end liwc')
     print('begin file write')
     fwrite_feature_vectors( filename, posi_word_ngram, neg_word_ngram, posi_pos_ngram, neg_pos_ngram, posi_liwc_feat, neg_liwc_feat )
