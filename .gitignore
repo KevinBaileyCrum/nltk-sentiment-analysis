@@ -1,0 +1,9 @@
+.git
+__pycache__
+args.py
+category_texts
+restaurant-help.data
+word_features-help*
+word_pos_features-help*
+word_pos_liwc_features-help*
+helper

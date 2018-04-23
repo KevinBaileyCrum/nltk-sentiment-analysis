@@ -15,14 +15,14 @@ def concat_str(ngram):
     return out
 
 
-def fwrite_feature_vectors( posi_word_ngram, neg_word_ngram, posi_pos_ngram, neg_pos_ngram, posi_liwc_feat, neg_liwc_feat ):
+def fwrite_feature_vectors( filename, posi_word_ngram, neg_word_ngram, posi_pos_ngram, neg_pos_ngram, posi_liwc_feat, neg_liwc_feat ):
     '''
     this is some nasty code and I am not the most proud of it
     there does exist a more elegant way to do this but
     I am not the best with python.  This is not very DRY
     although it still gets the job done
     '''
-    dataset = 'help' # this shall be the changed variable
+    dataset = filename
 
     # Formats output to be written as string formats
     # format word tokens
@@ -206,7 +206,7 @@ def features_stub( filename ):
     print( neg_liwc_feat )
     print('end liwc')
     print('begin file write')
-    fwrite_feature_vectors( posi_word_ngram, neg_word_ngram, posi_pos_ngram, neg_pos_ngram, posi_liwc_feat, neg_liwc_feat )
+    fwrite_feature_vectors( filename, posi_word_ngram, neg_word_ngram, posi_pos_ngram, neg_pos_ngram, posi_liwc_feat, neg_liwc_feat )
 
 if __name__ == "__main__":
     if( len( sys.argv ) < 2 ):
