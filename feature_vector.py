@@ -1,4 +1,4 @@
-
+import sys
 import nltk
 import re
 import json
@@ -44,7 +44,6 @@ def fwrite_feature_vectors( posi_word_ngram, neg_word_ngram, posi_pos_ngram, neg
 
     with open( 'word_pos_liwc_features-'+dataset+'-features.txt',"w", encoding="utf-8" ) as fout:
         fout.write( "positive %s %s %s\n negative %s %s %s"%( pos_word_feat, posi_pos_feat, posi_liwc_feat,neg_word_feat, neg_pos_feat, neg_liwc_feat ) )
-    # TODO WWRITE LIWC TO FILE
     return
 
 
@@ -60,10 +59,27 @@ def get_liwc_features(words):
 
     # All possible keys to the scores start on line 269
     # of the word_category_counter.py script
-    negative_score = liwc_scores["Negative Emotion"]
-    positive_score = liwc_scores["Positive Emotion"]
+
+    negative_score = 0
+    positive_score = 0
+
+    negative_score += liwc_scores["Negative Emotion"]
+    negative_score += liwc_scores["Anger"]
+    negative_score += liwc_scores["Anxiety"]
+    negative_score += liwc_scores["Sadness"]
+    negative_score += liwc_scores["Metaphysical issues"]
+    negative_score += liwc_scores["Death"]
+
+    positive_score += liwc_scores["Positive Emotion"]
+    positive_score += liwc_scores["Optimism and energy"]
+    positive_score += liwc_scores["Achievement"]
+    #positive_score += liwc_scores[]
+    #positive_score += liwc_scores[]
+    #positive_score += liwc_scores[]
+
     feature_vectors["Negative Emotion"] = negative_score
     feature_vectors["Positive Emotion"] = positive_score
+
 
     if positive_score > negative_score:
         feature_vectors["liwc:positive"] = 1
@@ -117,17 +133,22 @@ def get_words( text ):
         sent = sent.lower()
         words += nltk.word_tokenize( sent )
 
+    regex = re.compile(r'(?:\w)+')
+    normalized_words = []
+    for w in words:
+        normalized_words += ( re.findall( regex, w ) )
+
     #tags=[ t[1] for t in nltk.pos_tag(words) ]
 
     #print( tags )
     #print( words )
-    return words
+    return normalized_words
 
-def features_stub():
+def features_stub( filename ):
     # open restaurant-training.data
     # calls data_helper.py to put file in pos or neg category list
     # here is where I would call other files as well
-    datafile = "restaurant-help.data"
+    datafile = filename
     raw_data = data_helper.read_file(datafile)
     positive_texts, negative_texts = data_helper.get_reviews(raw_data)
 
@@ -140,7 +161,7 @@ def features_stub():
     positive_pos_toks = []
     negative_toks = []
     negative_pos_toks = []
-
+    print( 'begin tokenize')
     # get word and pos tokens not the most
     # efficient but easier to trace
     for documents in positive_texts:
@@ -152,29 +173,49 @@ def features_stub():
         positive_pos_toks += get_pos( documents )
     for documents in negative_texts:
         negative_pos_toks += get_pos( documents )
-
+    print( 'tokenizing compl' )
     # get ngrams for positive and negative categories
     posi_word_ngram = {}
     posi_pos_ngram = {}
     neg_word_ngram = {}
     neg_pos_ngram = {}
-
+    print( 'begin word ngram' )
     for tokens in positive_toks:
         posi_word_ngram.update( get_ngram_features( positive_toks ) )
+    print( 'all positive word ngram completed')
     for tokens in negative_toks:
         neg_word_ngram.update( get_ngram_features( negative_toks ) )
+    print( 'all negative word ngram completed')
+    print( 'end word ngram' )
 
+    print( 'begin pos ngram' )
     for tokens in positive_toks:
         posi_pos_ngram.update( get_ngram_features( positive_pos_toks ) )
+
+    print( 'all pos pos ngram completed')
+    print( 'begin negative ngram' )
     for tokens in negative_toks:
         neg_pos_ngram.update( get_ngram_features( negative_pos_toks ) )
-
+    print( 'all negative pos ngram completed')
+    print( 'end pos ngram')
+    print('begin liwc')
     # get LIWC features
     posi_liwc_feat = get_liwc_features( positive_toks )
     neg_liwc_feat  = get_liwc_features( negative_toks )
+    print( posi_liwc_feat )
     print( neg_liwc_feat )
+    print('end liwc')
+    print('begin file write')
     fwrite_feature_vectors( posi_word_ngram, neg_word_ngram, posi_pos_ngram, neg_pos_ngram, posi_liwc_feat, neg_liwc_feat )
 
 if __name__ == "__main__":
-    features_stub()
+    if( len( sys.argv ) < 2 ):
+        print( "error: feature_vector.py called with too few args")
+        print( "usage: python feature_vector.py [single_file_to_process]" )
+        print( "note: you also want LIWC files set up as in project description")
+        exit()
 
+    print( "%s processing"%( sys.argv[1]) )
+    filename = sys.argv[1]
+    features_stub( filename )
+    print( "completed" )
